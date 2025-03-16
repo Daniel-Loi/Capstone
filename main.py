@@ -1,6 +1,6 @@
 from transition import * 
 from audiomix import *
-
+from audioplayer import *
 
 def main():
     #parser = argparse.ArgumentParser(description="Mix two songs with beat and energy matching.")
@@ -45,6 +45,8 @@ def main():
     # Mix and save audio
     print("Mixing audio...")
     mix_audio(file_path1, file_path2, t1, t2)
+
+    
 
 
 if __name__ == "__main__":
