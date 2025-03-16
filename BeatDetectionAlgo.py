@@ -38,13 +38,6 @@ def analyze_frequency_bands(y, sr, n_fft=2048, hop_length=512):
     """
     Analyze specific frequency bands in the audio signal.
     
-    Common frequency ranges:
-    - Sub-bass: 20-60 Hz
-    - Bass: 60-250 Hz
-    - Low-mids: 250-500 Hz
-    - Mids: 500-2000 Hz
-    - High-mids: 2000-4000 Hz
-    - Highs: 4000-20000 Hz
     """
     # Compute STFT
     stft = librosa.stft(y, n_fft=n_fft, hop_length=hop_length)
