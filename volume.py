@@ -30,7 +30,14 @@ def normalize_audio(audio, target_rms):
     scaling_factor = target_rms / current_rms
     return audio * scaling_factor
 
-def FFT_graph(signal,sample):
+def left_right_mix(signal,left,right):
+    signal = np.array(signal).astype(np.float32)
+    signal[:,0] = left*signal[:,0] 
+    signal[:,1] = right*signal[:,1] 
+    return signal
+
+
+def FFT_graph(signal,sample,s_rate):
     signal = signal.astype(np.float32)
     song_dur = len(signal)/sample   
 
@@ -45,13 +52,14 @@ def FFT_graph(signal,sample):
 
 
 
-#s_rate, signal = wavfile.read("Test.wav") 
+#s_rate, signal = wavfile.read("stereo_test.wav") 
 #                                                        
 #FFT_graph(signal,s_rate)
 #
 #new_signal = normalize_audio(signal,30)
-#new_signal = fade_in(new_signal,s_rate,3)
-#new_signal = fade_out(new_signal,s_rate,3)
+#new_signal = fade_in(new_signal,s_rate,1)
+#new_signal = fade_out(new_signal,s_rate,1)
+#new_signal = left_right_mix(new_signal,0,1)
 #new_signal = volume(new_signal,1)
 #
 #wavfile.write("output.wav", s_rate, new_signal)
