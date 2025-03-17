@@ -7,7 +7,6 @@ for i, file in enumerate(stored_files, 1):
     print(f"{i}. {file['filename']} (stored on {file['stored_date']})")
 
 if stored_files:
-    # Ask which song to retrieve
     try:
         choice = int(input("\nEnter the number of the song you want to retrieve (1, 2, etc.): "))
         if 1 <= choice <= len(stored_files):
