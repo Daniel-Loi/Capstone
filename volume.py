@@ -26,7 +26,12 @@ def fade_out(signal,rate,duration):
     return signal
 
 def normalize_audio(audio, target_rms):
+    """
+    Normalize the audio to a target RMS level.
+    """
     current_rms = np.sqrt(np.mean(audio**2))
+    if current_rms == 0:
+        return audio
     scaling_factor = target_rms / current_rms
     return audio * scaling_factor
 
@@ -41,7 +46,7 @@ def FFT_graph(signal,sample):
     plt.plot(freqs[range(len(FFT)//2)], FFT[range(len(FFT)//2)])
     plt.xlabel('Frequency (Hz)')
     plt.ylabel('Amplitude')
-    plt.show()
+    plt.show(block = False)
 
 
 

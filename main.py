@@ -1,51 +1,53 @@
-from transition import * 
-from audiomix import *
+from audiomix import analyze_audio, find_transition_points_dynamic, dynamic_crossfade
+from pydub import AudioSegment
+import numpy as np
 
-
-def main():
-    #parser = argparse.ArgumentParser(description="Mix two songs with beat and energy matching.")
-    #parser.add_argument("file1", help="Path to the first MP3 file")
-    #parser.add_argument("file2", help="Path to the second MP3 file")
-    #parser.add_argument("--output", default="mixed_song.mp3", help="Output file for the mixed song")
-    #args = parser.parse_args()
-
-    file_path1 = "Test.wav"
-    file_path2 = "Test2.wav"
-    # Analyze both songs
+def main(file_path1, file_path2):
+    # Analyze songs
     print("Analyzing songs...")
     tempo1, beats1, y1, sr1, key1, energy1, energy_times1 = analyze_audio(file_path1)
     tempo2, beats2, y2, sr2, key2, energy2, energy_times2 = analyze_audio(file_path2)
 
-    print(f"Song 1: Tempo={tempo1} BPM, Key={key1}")
-    print(f"Song 2: Tempo={tempo2} BPM, Key={key2}")
+    print(f"Song 1: Tempo={tempo1} BPM, Key={key1}, Duration={len(y1) / sr1} seconds")
+    print(f"Song 2: Tempo={tempo2} BPM, Key={key2}, Duration={len(y2) / sr2} seconds")
 
-    # Adjust tempo if needed
-    #if abs(tempo1 - tempo2) > 5:
-    #    print("Adjusting tempos for compatibility...")
-    #    if tempo1 > tempo2:
-    #        y1 = adjust_tempo(y1, tempo2, tempo1)
-    #        tempo1 = tempo2
-    #    else:
-    #        y2 = adjust_tempo(y2, tempo1, tempo2)
-    #        tempo2 = tempo1
+    # Adjust tempos for compatibility
+    print("Adjusting tempos for compatibility...")
+    adjusted_tempo2 = tempo2 * (tempo1 / tempo2)  # Adjust Song 2 tempo to match Song 1's tempo
+    print(f"Adjusted Tempo: Song 1={tempo1} BPM, Song 2={adjusted_tempo2} BPM")
 
-    # Find transitions
+    # Adjust pitch for key compatibility
+    print("Adjusting pitch for key compatibility...")
+    pitch_shift = key2 - key1  # Shift pitch by the difference in key
+    print(f"Adjusted Key: Shifted by {pitch_shift} semitones")
+
+    # Find transition points
     print("Finding transition points...")
-    transitions = find_transition_points_dynamic(beats1, beats2)
-    if not transitions:
-        print("No suitable transitions found.")
+    transitions = find_transition_points_dynamic(beats1, beats2, energy1, energy_times1, min_transition_time=15.0)  # Pass energy1 and energy_times1
+
+    if transitions:
+        print(f"Found {len(transitions)} transitions.")
+        transition_point = 59  # Use the first detected transition point
+        print(f"Transition point at: {transition_point} seconds")
+    else:
+        print("No transition points found.")
         return
 
-    print(f"Found {len(transitions)} transitions.")
-    t1, t2 = transitions[0]  # Use the first transition point for simplicity
+    # Load the songs
+    song1 = AudioSegment.from_file(file_path1)
+    song2 = AudioSegment.from_file(file_path2)
 
-    # Visualize waveforms
-    visualize_waveforms_advanced(y1, sr1, y2, sr2, transitions)
-
-    # Mix and save audio
+    # Mixing audio
     print("Mixing audio...")
-    mix_audio(file_path1, file_path2, t1, t2)
-
+    try:
+        mixed = dynamic_crossfade(song1, song2, transition_point)
+        output_file = "mixed_output.mp3"
+        mixed.export(output_file, format="mp3")
+        print(f"Mixed audio saved as {output_file}")
+    except ValueError as e:
+        print(e)
 
 if __name__ == "__main__":
-    main()
+    song1_path = "test_songs/CantStopTheFeeling.mp3"
+    song2_path = "test_songs/ShapeOfYou.mp3"
+    main(song1_path, song2_path)

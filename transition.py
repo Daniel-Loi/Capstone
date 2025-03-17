@@ -1,9 +1,7 @@
 import librosa
 import numpy as np
 import matplotlib.pyplot as plt
-import argparse
 
-# 1. Analyze Audio Features
 def analyze_audio(file_path):
     y, sr = librosa.load(file_path, sr=None, mono=True)
     tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
@@ -14,34 +12,40 @@ def analyze_audio(file_path):
     energy_times = librosa.frames_to_time(range(len(energy)), sr=sr)
     return tempo, beats, y, sr, key, energy, energy_times
 
-# 2. Dynamic Beat Matching
-def find_transition_points_dynamic(beats1, beats2, threshold_factor=0.1):
-    transition_points = []
-    avg_interval1 = np.mean(np.diff(beats1)) if len(beats1) > 1 else 0.5
-    avg_interval2 = np.mean(np.diff(beats2)) if len(beats2) > 1 else 0.5
-    threshold = min(avg_interval1, avg_interval2) * threshold_factor
-    for beat1 in beats1:
-        for beat2 in beats2:
-            if abs(beat1 - beat2) < threshold:
-                transition_points.append((beat1, beat2))
-    return transition_points
+def detect_chorus_transition(energy, energy_times, threshold_factor=2.0):
+    """
+    Detect the chorus transition based on dynamic energy threshold.
+    """
+    # Calculate the average energy and set the threshold as a multiple of the average
+    avg_energy = np.mean(energy)
+    threshold = avg_energy * threshold_factor
 
-# 3. Tempo Adjustment
-#def adjust_tempo(y, target_tempo, current_tempo):
-#    factor = target_tempo / current_tempo
-#    return librosa.effects.time_stretch(y, factor)
+    print(f"Average Energy: {avg_energy}, Threshold: {threshold}")
 
-# 4. Visualize Waveforms with Transitions
-def visualize_waveforms_advanced(y1, sr1, y2, sr2, transitions):
-    plt.figure(figsize=(15, 8))
-    librosa.display.waveshow(y1, sr=sr1, alpha=0.6, color='blue', label="Song 1")
-    librosa.display.waveshow(y2, sr=sr2, alpha=0.6, color='orange', label="Song 2")
-    for t1, t2 in transitions:
-        plt.axvline(x=t1, color='green', linestyle='--', label="Transition Point (Song 1)")
-        plt.axvline(x=t2, color='red', linestyle='--', label="Transition Point (Song 2)")
+    # Plot the energy profile for debugging
+    plt.figure(figsize=(10, 6))
+    plt.plot(energy_times, energy, label="Energy Profile")
+    plt.axhline(y=threshold, color='r', linestyle='--', label="Energy Threshold")
+    plt.xlabel("Time (s)")
+    plt.ylabel("Energy")
+    plt.title("Energy Profile for Chorus Detection")
     plt.legend()
-    plt.title("Waveform Overlap with Transitions")
-    plt.tight_layout()
     plt.show()
 
+    # Find the point where energy exceeds threshold (simple heuristic for chorus)
+    for i, e in enumerate(energy):
+        if e > threshold:
+            return energy_times[i]  # Return the time of the first energy peak above the threshold
+    
+    return None  # No transition point found
 
+def visualize_energy(energy, energy_times, transition_time):
+    """Visualize the energy levels and detected transition point"""
+    plt.figure(figsize=(10, 6))
+    plt.plot(energy_times, energy, label="RMS Energy")
+    plt.axvline(x=transition_time, color='r', linestyle='--', label="Detected Transition Point")
+    plt.xlabel("Time (s)")
+    plt.ylabel("RMS Energy")
+    plt.title("RMS Energy with Detected Transition Point")
+    plt.legend()
+    plt.show()
