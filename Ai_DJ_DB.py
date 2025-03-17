@@ -8,9 +8,9 @@ from datetime import datetime
 load_dotenv()
 
 # MongoDB Atlas Connection
-MONGO_USER = os.getenv('MONGO_USER', 'your_username')  # Replace with your Atlas username
-MONGO_PASS = os.getenv('MONGO_PASS', 'your_password')  # Replace with your Atlas password
-MONGO_CLUSTER = os.getenv('MONGO_CLUSTER', 'your_cluster_url')  # Replace with your Atlas cluster URL
+MONGO_USER = os.getenv('MONGO_USER', 'your_username') 
+MONGO_PASS = os.getenv('MONGO_PASS', 'your_password')
+MONGO_CLUSTER = os.getenv('MONGO_CLUSTER', 'your_cluster_url') 
 
 # Construct the connection string
 MONGO_URI = f"mongodb+srv://{MONGO_USER}:{MONGO_PASS}@{MONGO_CLUSTER}/?retryWrites=true&w=majority"
