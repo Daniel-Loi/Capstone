@@ -10,7 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mdi/js": "^7.4.47",
+    "@mdi/react": "^1.6.1",
     "autoprefixer": "^10.0.0",
+    "framer-motion": "^12.5.0",
     "lucide-react": "^0.482.0",
     "postcss": "^8.0.0",
     "react": "^19.0.0",
@@ -28,6 +31,7 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.18",
     "globals": "^15.14.0",
+    "typescript": "^5.8.2",
     "vite": "^6.1.0"
   }
 }

@@ -12,3 +12,15 @@ html, body, #root {
   color: white;
   font-family: Inter, system-ui, sans-serif;
 }
+
+/* ustom Scrollbar*/
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #a855f7; /*Purple color to match theme*/
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}

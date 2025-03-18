@@ -1,4 +1,7 @@
 import { useState } from "react";
+import React, { Component } from 'react';
+import Icon from '@mdi/react';
+import { mdiPlaylistMusic } from '@mdi/js';
 
 const Playlists = () => {
   const [playlists, setPlaylists] = useState([
@@ -14,7 +17,15 @@ const Playlists = () => {
     { id: 10, name: "again" },
     { id: 11, name: "again2" },
     { id: 12, name: "last" },
-    // Feel free to add more!
+    { id: 5, name: "Top Hits 2025" },
+    { id: 6, name: "something" },
+    { id: 7, name: "something2" },
+    { id: 8, name: "idk2" },
+    { id: 9, name: "more" },
+    { id: 10, name: "again" },
+    { id: 11, name: "again2" },
+    { id: 12, name: "last" }
+    //add more to test scrollbar functionality
   ]);
 
   return (
@@ -25,9 +36,15 @@ const Playlists = () => {
         {playlists.map((playlist) => (
           <div
             key={playlist.id}
-            className="bg-gray-800 p-4 rounded-xl shadow-lg hover:shadow-purple-500/50 transition flex flex-col items-center"
+            className="bg-gray-800 p-4 rounded-xl shadow-lg hover:shadow-purple-500/50 hover:scale-105 transition-all duration-300 flex flex-col items-center"
           >
-            <div className="w-32 h-32 bg-purple-500 rounded-lg mb-4"></div>
+            <Icon
+              path={mdiPlaylistMusic}
+              title="Playlist Icon"
+              size={3}
+              color="#a855f7"
+              horizontal
+            />
             <h2 className="text-lg font-semibold">{playlist.name}</h2>
           </div>
         ))}
