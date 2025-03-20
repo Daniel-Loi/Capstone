@@ -3,7 +3,7 @@ import NavButtons from "./NavButtons";
 
 const Layout = () => {
   const location = useLocation();
-  const isLoginPage = location.pathname === "/";
+  const hideNavButtons = location.pathname === "/" || location.pathname === "/signup";
 
   return (
     <div className="min-h-screen w-full flex flex-col justify-between bg-gradient-to-b from-black to-gray-900 text-white">
@@ -12,8 +12,8 @@ const Layout = () => {
         <Outlet />
       </div>
 
-      {/* Show NavButtons only if NOT on the login page */}
-      {!isLoginPage && <NavButtons />}
+      {/* Show NavButtons only if NOT on login or signup pages */}
+      {!hideNavButtons && <NavButtons />}
     </div>
   );
 };

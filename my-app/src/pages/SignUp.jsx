@@ -1,18 +1,28 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const SignUp = () => {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleSignUp = (e) => {
     e.preventDefault();
-    if (email.trim() && password.trim()) {
-      navigate("/home");
-    } else {
-      alert("Please enter valid credentials.");
+
+    if (!username.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+      alert("Please fill out all fields.");
+      return;
     }
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
+    alert("Account created successfully!");
+    navigate("/");
   };
 
   return (
@@ -23,9 +33,17 @@ const Login = () => {
           <span className="text-white text-2xl font-bold">Logo</span>
         </div>
 
-        <h1 className="text-3xl font-extrabold text-purple-400 text-center">Login to Groovy</h1>
+        <h1 className="text-3xl font-extrabold text-purple-400 text-center">Create Your Account</h1>
 
-        <form onSubmit={handleLogin} className="flex flex-col gap-4 w-full">
+        <form onSubmit={handleSignUp} className="flex flex-col gap-4 w-full">
+          <input
+            type="text"
+            placeholder="Username"
+            className="w-full p-3 border border-gray-600 rounded-lg bg-gray-900 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+
           <input
             type="email"
             placeholder="Email"
@@ -33,6 +51,7 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+
           <input
             type="password"
             placeholder="Password"
@@ -40,22 +59,31 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+
+          {/* Confirm Password Field */}
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            className="w-full p-3 border border-gray-600 rounded-lg bg-gray-900 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+
           <button
             type="submit"
             className="w-full bg-purple-500 text-white p-3 rounded-lg font-semibold hover:bg-purple-700 transition shadow-md"
           >
-            Login
+            Sign Up
           </button>
         </form>
 
-        {/* Signup Prompt */}
         <div className="text-center mt-4">
-          <p className="text-gray-400">Don't have an account?</p>
+          <p className="text-gray-400">Already have an account?</p>
           <button
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate("/")}
             className="mt-2 text-purple-400 hover:underline font-semibold"
           >
-            Create Account
+            Login
           </button>
         </div>
       </div>
@@ -63,4 +91,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;

@@ -9,9 +9,9 @@ const Profile = () => {
     username: "GroovyUser",
     email: "user@groovyapp.com",
     password: "••••••••",
-    accountCreated: "January 1, 2023", // New field
-    favoritePlaylist: "Chill Vibes", // New field
-    totalRemixes: 15, // New field
+    accountCreated: "January 1, 2023",
+    favoritePlaylist: "Chill Vibes",
+    totalRemixes: 15,
   });
 
   const handleChange = (e) => {
@@ -20,7 +20,7 @@ const Profile = () => {
 
   const handleSave = () => {
     setEditMode(false);
-    // Saving logic placeholder
+    // Implement saving logic here
   };
 
   const handleLogout = () => {
@@ -41,7 +41,7 @@ const Profile = () => {
         <div className="flex flex-col w-full gap-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Username */}
-            <div>
+            <div className="flex flex-col">
               <label className="block text-sm font-bold text-purple-500 mb-2">Username</label>
               {editMode ? (
                 <input
@@ -49,7 +49,7 @@ const Profile = () => {
                   name="username"
                   value={profile.username}
                   onChange={handleChange}
-                  className="w-full p-2 rounded bg-gray-700 text-white"
+                  className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               ) : (
                 <p className="text-lg">{profile.username}</p>
@@ -57,7 +57,7 @@ const Profile = () => {
             </div>
 
             {/* Email */}
-            <div>
+            <div className="flex flex-col">
               <label className="block text-sm font-bold text-purple-500 mb-2">Email</label>
               {editMode ? (
                 <input
@@ -65,7 +65,7 @@ const Profile = () => {
                   name="email"
                   value={profile.email}
                   onChange={handleChange}
-                  className="w-full p-2 rounded bg-gray-700 text-white"
+                  className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               ) : (
                 <p className="text-lg">{profile.email}</p>
@@ -73,7 +73,7 @@ const Profile = () => {
             </div>
 
             {/* Password */}
-            <div>
+            <div className="flex flex-col">
               <label className="block text-sm font-bold text-purple-500 mb-2">Password</label>
               {editMode ? (
                 <input
@@ -81,7 +81,7 @@ const Profile = () => {
                   name="password"
                   value={profile.password}
                   onChange={handleChange}
-                  className="w-full p-2 rounded bg-gray-700 text-white"
+                  className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               ) : (
                 <p className="text-lg">{profile.password}</p>
@@ -89,19 +89,19 @@ const Profile = () => {
             </div>
 
             {/* Account Created On */}
-            <div>
+            <div className="flex flex-col">
               <label className="block text-sm font-bold text-purple-500 mb-2">Account Created On</label>
               <p className="text-lg">{profile.accountCreated}</p>
             </div>
 
             {/* Favorite Playlist */}
-            <div>
+            <div className="flex flex-col">
               <label className="block text-sm font-bold text-purple-500 mb-2">Favorite Playlist</label>
               <p className="text-lg">{profile.favoritePlaylist}</p>
             </div>
 
             {/* Total Remixes Created */}
-            <div>
+            <div className="flex flex-col">
               <label className="block text-sm font-bold text-purple-500 mb-2">Total Remixes Created</label>
               <p className="text-lg">{profile.totalRemixes}</p>
             </div>
@@ -113,13 +113,13 @@ const Profile = () => {
               <>
                 <button
                   onClick={handleSave}
-                  className="bg-green-500 text-white p-2 px-4 rounded-lg hover:bg-green-600"
+                  className="bg-green-500 text-white p-2 px-4 rounded-lg hover:bg-green-600 transition-transform transform hover:scale-105"
                 >
                   Save
                 </button>
                 <button
                   onClick={() => setEditMode(false)}
-                  className="bg-gray-600 text-white p-2 px-4 rounded-lg hover:bg-gray-500"
+                  className="bg-gray-600 text-white p-2 px-4 rounded-lg hover:bg-gray-500 transition-transform transform hover:scale-105"
                 >
                   Cancel
                 </button>
@@ -127,7 +127,7 @@ const Profile = () => {
             ) : (
               <button
                 onClick={() => setEditMode(true)}
-                className="bg-purple-500 text-white p-2 px-4 rounded-lg hover:bg-purple-600"
+                className="bg-purple-500 text-white p-2 px-4 rounded-lg hover:bg-purple-600 transition-transform transform hover:scale-105"
               >
                 Edit Profile
               </button>
@@ -138,7 +138,7 @@ const Profile = () => {
           <div className="flex justify-end mt-6">
             <button
               onClick={handleLogout}
-              className="bg-red-500 text-white p-2 px-4 rounded-lg hover:bg-red-600 transition"
+              className="bg-red-500 text-white p-2 px-4 rounded-lg hover:bg-red-600 transition-transform transform hover:scale-105"
             >
               Logout
             </button>

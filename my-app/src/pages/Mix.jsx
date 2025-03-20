@@ -10,10 +10,10 @@ const Mix = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-black to-gray-900 text-white px-4 pb-24">
-      <h1 className="text-4xl font-bold mb-10 text-purple-400">Mix Your Songs</h1>
+    <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-black to-gray-900 text-white px-4">
+      <h1 className="text-4xl font-bold mb-6 text-purple-400">Mix Your Songs</h1>
 
-      <div className="flex flex-col md:flex-row gap-12 mb-8">
+      <div className="flex flex-col md:flex-row gap-8 mb-6">
         <div className="flex flex-col items-center gap-4">
           <span className="text-lg font-bold">Song 1</span>
           <label className="w-32 h-32 bg-gray-800 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-700">
@@ -37,15 +37,13 @@ const Mix = () => {
 
       {/* Mix Songs Button */}
       <button
-        className={`bg-purple-500 text-white px-6 py-2 rounded-2xl text-lg mt-8 ${
+        className={`bg-purple-500 text-white px-6 py-2 rounded-2xl text-lg ${
           !song1 || !song2 ? "opacity-50 cursor-not-allowed" : "hover:bg-purple-600"
         }`}
         disabled={!song1 || !song2}
       >
         Mix Songs
       </button>
-
-      {/* Removed duplicate nav buttons */}
     </div>
   );
 };

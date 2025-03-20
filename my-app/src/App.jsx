@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Playlists from "./pages/Playlists";
 import Mix from "./pages/Mix";
 import Profile from "./pages/Profile";
+import SignUp from "./pages/SignUp";
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
         <Route path="playlists" element={<Playlists />} />
         <Route path="mix" element={<Mix />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="signup" element={<SignUp />} />
       </Route>
     </Routes>
   );
