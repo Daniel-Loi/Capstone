@@ -5,7 +5,7 @@ import { mdiPlaylistMusic } from '@mdi/js';
 
 const Playlists = () => {
   const [playlists, setPlaylists] = useState([
-    { id: 1, name: "Chill" },
+    { id: 1, name: "Remixes" },
     { id: 2, name: "Workout" },
     { id: 3, name: "idk" },
     { id: 4, name: "idc" },
@@ -31,7 +31,7 @@ const Playlists = () => {
   return (
     <div className="flex flex-col items-center p-8 pb-20">
       <h1 className="text-4xl font-bold mb-8 text-purple-400">Your Playlists</h1>
-      {/* Scrollable Grid Container */}
+      {/* scrollable grid container */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 overflow-y-auto p-4 w-full max-h-[65vh]">
         {playlists.map((playlist) => (
           <div

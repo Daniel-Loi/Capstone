@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import logo from '../assets/logo.png';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -18,10 +19,11 @@ const Login = () => {
   return (
     <div className="flex items-center justify-center min-h-screen w-screen bg-gradient-to-b from-black to-gray-900 text-white p-4">
       <div className="w-full max-w-lg bg-gray-800 p-10 rounded-2xl shadow-xl flex flex-col items-center gap-6">
-        {/* Logo Placeholder */}
-        <div className="w-20 h-20 bg-purple-500 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition">
-          <span className="text-white text-2xl font-bold">Logo</span>
-        </div>
+      <img
+          src={logo}
+          alt="Groovy Logo"
+          className="w-40 h-30 rounded-full object-contain transition duration-300 hover:shadow-[0_0_25px_5px_rgba(255,255,255,0.7)]"
+        />
 
         <h1 className="text-3xl font-extrabold text-purple-400 text-center">Login to Groovy</h1>
 
