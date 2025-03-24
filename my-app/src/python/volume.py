@@ -35,7 +35,7 @@ def normalize_audio(audio, target_rms):
     scaling_factor = target_rms / current_rms
     return audio * scaling_factor
 
-def FFT_graph(signal,sample):
+def FFT_graph(signal,sample,s_rate):
     signal = signal.astype(np.float32)
     song_dur = len(signal)/sample   
 
