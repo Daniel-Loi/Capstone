@@ -108,7 +108,9 @@ const Mix = () => {
             Download MP3
           </a>
         </div>
-      ) && (
+      )}
+      
+      {mix_songs_out && (
       <button className="bg-purple-500 text-white px-6 py-2 rounded-2xl text-lg"
         onClick={upload_to_db}>
         Save song
