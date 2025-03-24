@@ -12,6 +12,7 @@ const Mix = () => {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [data, setData] = useState(null);
 
   const audioRef = useRef(null);
 
@@ -28,6 +29,7 @@ const Mix = () => {
       setProgress(0);
       setMixComplete(false);
       setAudioUrl(null);
+      uploadFiles();
 
       const interval = setInterval(() => {
         setProgress((prev) => {
@@ -35,7 +37,6 @@ const Mix = () => {
             clearInterval(interval);
             setMixing(false);
             setMixComplete(true);
-            setAudioUrl("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
             return 100;
           }
           return prev + 10;
@@ -75,6 +76,45 @@ const Mix = () => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
+
+  const uploadFiles = () => {
+    const formData = new FormData();
+    formData.append("file1", song1);
+    formData.append("file2", song2);
+    fetch("http://127.0.0.1:5000/api/upload", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setData(data.message);
+        mix_songs();
+      })
+      .catch((error) => console.error("Upload error:", error));
+  };
+
+  const mix_songs = () => {
+    fetch("http://127.0.0.1:5000/api/mix_songs")
+    .then((response) => response.blob()) // Convert response to a blob
+    .then((blob) => {
+      const url = URL.createObjectURL(blob);
+      setAudioUrl(url);
+    })
+    .catch((error) => console.error("Received file error:", error));
+  };
+  
+  const upload_to_db = () => {
+    const formData = new FormData();
+    formData.append("file1", song1);
+    formData.append("file2", song2);
+    fetch("http://127.0.0.1:5000/api/save_to_db", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => setData1(data.message))
+      .catch((error) => console.error("Upload error:", error));
   };
 
   return (
@@ -170,6 +210,12 @@ const Mix = () => {
               <Icon path={mdiDownload} size={0.9} className="inline mr-2" />
               Download Remix
             </a>
+
+            <button className="mt-4 bg-cyan-500 text-white font-semibold py-2 px-4 rounded-2xl hover:bg-cyan-600 transition-all duration-300"
+              onClick={upload_to_db}>
+              Add to playlist
+            </button>
+
           </div>
         )}
       </div>
