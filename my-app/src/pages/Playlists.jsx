@@ -2,8 +2,11 @@ import { useState } from "react";
 import React, { Component } from 'react';
 import Icon from '@mdi/react';
 import { mdiPlaylistMusic } from '@mdi/js';
+import { useNavigate } from "react-router-dom";
 
 const Playlists = () => {
+  const navigate = useNavigate();
+
   const [playlists, setPlaylists] = useState([
     { id: 1, name: "Chill" },
     { id: 2, name: "Workout" },
@@ -37,6 +40,7 @@ const Playlists = () => {
           <div
             key={playlist.id}
             className="bg-gray-800 p-4 rounded-xl shadow-lg hover:shadow-purple-500/50 hover:scale-105 transition-all duration-300 flex flex-col items-center"
+            onClick={() => navigate(`/playlists/${playlist.id}`, { state: { name: playlist.name } })}
           >
             <Icon
               path={mdiPlaylistMusic}
