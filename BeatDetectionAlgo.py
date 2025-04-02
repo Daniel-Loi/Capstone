@@ -1,112 +1,128 @@
 import librosa
-import librosa.display
 import numpy as np
-import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from scipy.signal import find_peaks
 
-def load_audio(file_path):
-    """Load an audio file and return the signal and sample rate."""
-    return librosa.load(file_path)
-
-def compute_spectrogram(y, sr, n_fft=1028, hop_length=256):
-    """Compute and return the spectrogram of the audio signal."""
-
-    stft = librosa.stft(y, n_fft=n_fft, hop_length=hop_length)
-
-    magnitude = np.abs(stft)
-
-    db_magnitude = librosa.amplitude_to_db(magnitude, ref=np.max)
-    return db_magnitude, hop_length
-
-def get_frequency_time_info(db_magnitude, sr, hop_length=256, n_fft=1028):
-    """Compute the frequency bins and time values for the spectrogram."""
-    frequencies = librosa.fft_frequencies(sr=sr, n_fft=n_fft)  # Frequency axis (Hz)
-    times = librosa.frames_to_time(np.arange(db_magnitude.shape[1]), sr=sr, hop_length=hop_length)  # Time axis (s)
-    return frequencies, times
-
-def plot_spectrogram(db_magnitude, sr, hop_length):
-    """Plot the spectrogram."""
-    plt.figure(figsize=(12, 6))
-    librosa.display.specshow(db_magnitude, sr=sr, hop_length=hop_length, 
-        x_axis='time', y_axis='log')
-    plt.colorbar(format='%+2.0f dB')
-    plt.title('Spectrogram (STFT)')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Frequency (Hz)')
-    plt.show()
-
-def analyze_frequency_bands(y, sr, n_fft=2048, hop_length=512):
+def detect_section_transitions(audio_file, n_sections=3):
     """
-    Analyze specific frequency bands in the audio signal.
-    
+    Enhanced verse/chorus transition detection focusing on:
+    - Spectral contrast (important for verse-chorus transitions)
+    - Harmonic changes
+    - Energy level changes
+    - Rhythmic pattern changes
     """
-    # Compute STFT
-    stft = librosa.stft(y, n_fft=n_fft, hop_length=hop_length)
-    magnitude = np.abs(stft)
+    # Load audio with optimal parameters
+    y, sr = librosa.load(audio_file, duration=180)  # Analyze first 3 minutes
+    hop_length = 1024  # Smaller window for better temporal resolution
     
-    # Get frequency bins
-    freqs = librosa.fft_frequencies(sr=sr, n_fft=n_fft)
+    # Extract more targeted features
+    # Spectral contrast (helps identify changes in musical texture)
+    contrast = librosa.feature.spectral_contrast(y=y, sr=sr, hop_length=hop_length)
     
-    # Define frequency bands
-    bands = {
-        'sub_bass': (20, 60),
-        'bass': (60, 250),
-        'low_mids': (250, 500),
-        'mids': (500, 2000),
-        'high_mids': (2000, 4000),
-        'highs': (4000, 20000)
-    }
+    # Harmonic content with better temporal resolution
+    chroma = librosa.feature.chroma_cens(y=y, sr=sr, hop_length=hop_length)
     
-    # Extract and analyze each frequency band
-    band_energies = {}
-    for band_name, (low_freq, high_freq) in bands.items():
-        # Find the frequency bin indices for this band
-        band_mask = (freqs >= low_freq) & (freqs <= high_freq)
-        # Extract the magnitudes for this frequency band
-        band_magnitudes = magnitude[band_mask]
-        # Calculate the energy in this band over time
-        band_energy = np.sum(band_magnitudes, axis=0)
-        band_energies[band_name] = band_energy
+    # Energy features
+    rms = librosa.feature.rms(y=y, hop_length=hop_length)[0]
+    # Mel-scaled spectrogram for better frequency resolution
+    mel_spec = librosa.feature.melspectrogram(y=y, sr=sr, hop_length=hop_length, n_mels=128)
+    mel_db = librosa.power_to_db(mel_spec, ref=np.max)
     
-    return band_energies, freqs, magnitude
+    # Rhythm features
+    tempo, beats = librosa.beat.beat_track(y=y, sr=sr, hop_length=hop_length)
+    beat_strength = librosa.onset.onset_strength(y=y, sr=sr, hop_length=hop_length)
+    
+    # Normalize and combine features
+    features = np.vstack([
+        contrast,  # Spectral contrast features
+        chroma,    # Harmonic content
+        rms[np.newaxis, :contrast.shape[1]],  # Energy
+        np.mean(mel_db, axis=0)[np.newaxis, :contrast.shape[1]],  # Average mel energy
+        beat_strength[np.newaxis, :contrast.shape[1]]  # Rhythmic information
+    ]).T
+    
+    # Normalize features
+    features = (features - np.mean(features, axis=0)) / np.std(features, axis=0)
+    
+    # Cluster sections with more clusters for finer granularity
+    kmeans = KMeans(n_clusters=n_sections + 2, random_state=42)
+    labels = kmeans.fit_predict(features)
+    
+    # Calculate transition scores with adjusted weights
+    window_time = hop_length / sr
+    
+    # Fix the shape mismatch in the transition scores calculation
+    label_changes = np.abs(np.diff(labels, prepend=labels[0]))
+    contrast_changes = np.mean(np.abs(np.diff(contrast, axis=1)), axis=0)
+    rms_changes = np.abs(np.diff(rms, prepend=rms[0]))
+    chroma_changes = np.mean(np.abs(np.diff(chroma, axis=1)), axis=0)
+    
+    # Ensure all arrays have the same length
+    min_length = min(len(label_changes), len(contrast_changes), 
+                    len(rms_changes), len(chroma_changes), 
+                    len(beat_strength))
+    
+    # Enhanced scoring system with proper array lengths:
+    transition_scores = (
+        0.35 * label_changes[:min_length] +      # Structure changes
+        0.25 * contrast_changes[:min_length] +   # Texture changes
+        0.20 * rms_changes[:min_length] +        # Energy changes
+        0.10 * chroma_changes[:min_length] +     # Harmonic changes
+        0.10 * beat_strength[:min_length]        # Rhythmic intensity
+    )
+    
+    # Smooth the transition scores
+    window_size = int(0.2 * sr / hop_length)  # 200ms window
+    transition_scores = np.convolve(transition_scores, 
+                                  np.hanning(window_size)/window_size, 
+                                  mode='same')
+    
+    # Find peaks with adaptive threshold
+    threshold = np.percentile(transition_scores, 85) 
 
-def find_magnitude_range(db_magnitude, hop_length, sr):
-    # Convert hop length to time
-    time_points = librosa.frames_to_time(np.arange(db_magnitude.shape[1]), 
-                                        sr=sr, 
-                                        hop_length=hop_length)
+    # Minimum 15 seconds between transitions
+    min_distance = int(15/window_time)  
     
-    # Create mask for values between 0 and -10 dB
-    magnitude_mask = (db_magnitude > -2) & (db_magnitude < 0)
+    peaks, _ = find_peaks(
+        transition_scores,
+        height=threshold,
+        distance=min_distance,
+        prominence=np.std(transition_scores) 
+    )
     
-    # Get timestamps where condition is met
-    timestamps = time_points[np.any(magnitude_mask, axis=0)]
+    # Convert to timestamps
+    transitions = sorted([p * window_time for p in peaks])
     
-    return timestamps
+    # Filter out transitions before 50 seconds
+    transitions = [t for t in transitions if t >= 50]
+    
+    # Post-processing for most significant transitions
+    if len(transitions) > 0:
+        # Get peak scores for filtered transitions
+        peak_scores = [transition_scores[int(t/window_time)] for t in transitions]
+        
+        # Select top transitions based on score
+        if len(transitions) > 3:
+            top_indices = np.argsort(peak_scores)[-3:]
+            transitions = sorted([transitions[i] for i in top_indices])
+    
+    return transitions
 
-def main():
-    # File paths
-    song1_path = 'test_songs/ShapeOfYou.mp3'
-    song2_path = 'test_songs/CantStopTheFeeling.mp3'
+def print_transitions(audio_file):
+    """Print detected transitions with timestamps"""
+    transitions = detect_section_transitions(audio_file)
     
-    # Load audio
-    y, sr = load_audio(song1_path)
-    
-    # Compute spectrogram
-    db_magnitude, hop_length = compute_spectrogram(y, sr)
-
-    frequencies, times = get_frequency_time_info(db_magnitude, sr, hop_length=256, n_fft=1028)
-
-    # Get timestamps where magnitude is in target range
-    target_timestamps = find_magnitude_range(db_magnitude, hop_length,sr)
-    print(f"Found {len(target_timestamps)} timestamps with magnitude between 0 and -10 dB")
-    
-    # Plot the results
-    plot_spectrogram(db_magnitude, sr, hop_length)
-
-    # Analyze frequency bands
-    band_energies, freqs, magnitude = analyze_frequency_bands(y, sr)
-
+    print(f"\nAnalysis of: {audio_file}")
+    if not transitions:
+        print("No clear transitions detected")
+    else:
+        print("Most likely verse-chorus transitions:")
+        for i, time in enumerate(transitions, 1):
+            mins = int(time // 60)
+            secs = int(time % 60)
+            print(f"  {i}. {mins}:{secs:02d}")
 
 if __name__ == "__main__":
-    main()
-
+    audio_file = 'test_songs/CantStopTheFeeling.mp3'
+    print_transitions(audio_file)
+    
